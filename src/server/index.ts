@@ -1,112 +1,183 @@
 import express from "express";
 import {
-  InitResponse,
-  IncrementResponse,
-  DecrementResponse,
-} from "../shared/types/api";
-import {
   createServer,
   context,
   getServerPort,
   reddit,
-  redis,
 } from "@devvit/web/server";
 import { createPost } from "./core/post";
+import { db } from "./core/db";
+import { validateLyric, generateId } from "./core/validation";
+import type { SubmitRequest, SubmitResponse } from "../shared/types/band";
 
 const app = express();
 
-// Middleware for JSON body parsing
 app.use(express.json());
-// Middleware for URL-encoded body parsing
 app.use(express.urlencoded({ extended: true }));
-// Middleware for plain text body parsing
 app.use(express.text());
 
 const router = express.Router();
 
-router.get<
-  { postId: string },
-  InitResponse | { status: string; message: string }
->("/api/init", async (_req, res): Promise<void> => {
-  const { postId } = context;
-
-  if (!postId) {
-    console.error("API Init Error: postId not found in devvit context");
-    res.status(400).json({
-      status: "error",
-      message: "postId is required but missing from context",
-    });
-    return;
-  }
-
+// Get current prompt
+router.get("/api/prompt", async (_req, res): Promise<void> => {
   try {
-    const [count, username] = await Promise.all([
-      redis.get("count"),
-      reddit.getCurrentUsername(),
-    ]);
-
-    res.json({
-      type: "init",
-      postId: postId,
-      count: count ? parseInt(count) : 0,
-      username: username ?? "anonymous",
-    });
-  } catch (error) {
-    console.error(`API Init Error for post ${postId}:`, error);
-    let errorMessage = "Unknown error during initialization";
-    if (error instanceof Error) {
-      errorMessage = `Initialization failed: ${error.message}`;
+    const prompt = await db.getCurrentPrompt();
+    
+    if (!prompt) {
+      res.json({ 
+        error: 'No active prompt',
+        message: 'Check back soon for the next challenge!' 
+      });
+      return;
     }
-    res.status(400).json({ status: "error", message: errorMessage });
+
+    res.json(prompt);
+  } catch (error) {
+    console.error("Error fetching prompt:", error);
+    res.status(500).json({ error: "Failed to fetch prompt" });
   }
 });
 
-router.post<
-  { postId: string },
-  IncrementResponse | { status: string; message: string },
-  unknown
->("/api/increment", async (_req, res): Promise<void> => {
-  const { postId } = context;
-  if (!postId) {
-    res.status(400).json({
-      status: "error",
-      message: "postId is required",
-    });
-    return;
-  }
+// Submit lyric
+router.post<any, SubmitResponse, SubmitRequest>(
+  "/api/submit",
+  async (req, res): Promise<void> => {
+    try {
+      const { text, type } = req.body;
+      const { userId } = context;
+      
+      const username = await reddit.getCurrentUsername();
 
-  res.json({
-    count: await redis.incrBy("count", 1),
-    postId,
-    type: "increment",
-  });
+      // Validate
+      const validation = validateLyric(text);
+      if (!validation.valid) {
+        res.status(400).json({ 
+          success: false, 
+          error: validation.error 
+        });
+        return;
+      }
+
+      // Get current prompt
+      const prompt = await db.getCurrentPrompt();
+      if (!prompt || prompt.status !== "open") {
+        res.status(400).json({ 
+          success: false, 
+          error: "No active prompt" 
+        });
+        return;
+      }
+
+      // Check if user already submitted
+      if (userId && await db.hasUserSubmitted(userId, prompt.id)) {
+        res.status(400).json({
+          success: false,
+          error: "You've already submitted to this prompt"
+        });
+        return;
+      }
+
+      // Create submission
+      const submission = {
+        id: generateId(),
+        userId: userId || "anonymous",
+        username: username || "Anonymous",
+        text: text.trim(),
+        type: type || "verse",
+        promptId: prompt.id,
+        votes: 0,
+        createdAt: Date.now(),
+        flagged: false,
+      };
+
+      await db.saveSubmission(submission);
+
+      res.json({ 
+        success: true, 
+        submission 
+      });
+    } catch (error) {
+      console.error("Error submitting lyric:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to submit lyric" 
+      });
+    }
+  }
+);
+
+// Get submissions for current prompt
+router.get("/api/submissions", async (_req, res): Promise<void> => {
+  try {
+    const prompt = await db.getCurrentPrompt();
+    if (!prompt) {
+      res.json([]);
+      return;
+    }
+
+    let submissions = await db.getSubmissionsByPrompt(prompt.id);
+
+    // Add vote counts
+    submissions = await Promise.all(
+      submissions.map(async (sub) => ({
+        ...sub,
+        votes: await db.getVotes(sub.id),
+      }))
+    );
+
+    // Sort by votes descending
+    submissions.sort((a, b) => b.votes - a.votes);
+
+    res.json(submissions);
+  } catch (error) {
+    console.error("Error fetching submissions:", error);
+    res.status(500).json({ error: "Failed to fetch submissions" });
+  }
 });
 
-router.post<
-  { postId: string },
-  DecrementResponse | { status: string; message: string },
-  unknown
->("/api/decrement", async (_req, res): Promise<void> => {
-  const { postId } = context;
-  if (!postId) {
-    res.status(400).json({
-      status: "error",
-      message: "postId is required",
-    });
-    return;
-  }
+// Vote on submission
+router.post("/api/vote/:submissionId", async (req, res): Promise<void> => {
+  try {
+    const { submissionId } = req.params;
+    
+    const submission = await db.getSubmission(submissionId);
+    if (!submission) {
+      res.status(404).json({ error: "Submission not found" });
+      return;
+    }
 
-  res.json({
-    count: await redis.incrBy("count", -1),
-    postId,
-    type: "decrement",
-  });
+    const newVoteCount = await db.incrementVote(submissionId);
+    res.json({ votes: newVoteCount });
+  } catch (error) {
+    console.error("Error voting:", error);
+    res.status(500).json({ error: "Failed to vote" });
+  }
 });
 
+// Initialize first prompt (for testing)
+router.post("/api/init-prompt", async (_req, res): Promise<void> => {
+  try {
+    const prompt = {
+      id: generateId(),
+      promptText: "Write a chorus line about starting something new",
+      weekNumber: 1,
+      createdAt: Date.now(),
+      endsAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 1 week from now
+      status: "open" as const,
+    };
+
+    await db.savePrompt(prompt);
+    res.json({ success: true, prompt });
+  } catch (error) {
+    console.error("Error creating prompt:", error);
+    res.status(500).json({ error: "Failed to create prompt" });
+  }
+});
+
+// App install handler
 router.post("/internal/on-app-install", async (_req, res): Promise<void> => {
   try {
     const post = await createPost();
-
     res.json({
       status: "success",
       message: `Post created in subreddit ${context.subredditName} with id ${post.id}`,
@@ -120,10 +191,10 @@ router.post("/internal/on-app-install", async (_req, res): Promise<void> => {
   }
 });
 
+// Menu handler for creating posts
 router.post("/internal/menu/post-create", async (_req, res): Promise<void> => {
   try {
     const post = await createPost();
-
     res.json({
       navigateTo: `https://reddit.com/r/${context.subredditName}/comments/${post.id}`,
     });
