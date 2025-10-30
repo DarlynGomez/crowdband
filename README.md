@@ -1,180 +1,244 @@
-# CrowdBand: The Band That Never Was
+# 🎵 CrowdBand — The Band That Never Was
 
-**A collaborative songwriting game where Reddit communities create original songs together, one lyric at a time.**
+> A weekly, community-powered music game built for Reddit
 
-CrowdBand transforms Reddit into a virtual recording studio where users collaborate to write songs through weekly creative challenges. Each week presents a thematic prompt, and the community contributes verses, choruses, and bridges that get voted on by the community to create the best collaborative songs.
+[![Reddit Developer Platform](https://img.shields.io/badge/Reddit-Devvit-FF4500?logo=reddit)](https://developers.reddit.com/)
+[![Hackathon](https://img.shields.io/badge/Hackathon-Reddit%20%2B%20Kiro-blue)](https://communitygames2025.devpost.com/)
+[![License](https://img.shields.io/badge/License-BSD--3--Clause-green)](LICENSE)
 
-## What Makes CrowdBand Unique
+## 🎸 What is CrowdBand?
 
-🎵 **Collaborative Songwriting**: Unlike traditional music games, CrowdBand focuses on creative writing, allowing anyone to contribute meaningful lyrics regardless of musical ability or experience.
+CrowdBand turns Reddit communities into a collaborative songwriting studio. Each week a new theme drops (like *“🌙 3 AM Thoughts – Lofi Hip Hop”*). People submit short lyrics—verses, choruses, or bridges—then vote for their favorites. When the week wraps up, the top-voted lines are automatically stitched together into a full song and saved forever in the Archive.
 
-⏰ **Weekly Creative Challenges**: Each week features a new thematic prompt (starting with "🌙 3 AM Thoughts") that guides the creative direction and keeps the community engaged with fresh inspiration.
+**No music skills needed. Just creativity and good vibes.**
 
-🗳️ **Democratic Curation**: The community votes on submissions, ensuring the best lyrics rise to the top through collective judgment rather than algorithmic sorting. Users can toggle their votes by clicking again.
+## ✨ Features
 
-🎭 **Structured Song Sections**: Users can contribute different song parts (verse, chorus, bridge) with distinct visual styling and character limits, creating natural song structure and variety.
+### 🎤 Studio
 
-🏆 **One Submission Per Week**: Each user gets one lyric submission per weekly challenge, making every contribution count and encouraging thoughtful creativity.
+* Submit verse, chorus, or bridge lines (max 120 chars)
+* One-tap voting
+* Your own submissions are highlighted
+* Live countdown for the weekly deadline
+* Clean, themed UI with custom splash screens
 
-📱 **Mobile-First Design**: Optimized for Reddit's mobile audience with touch-friendly controls and a sleek, music-inspired interface featuring cyberpunk aesthetics with neon gradients and floating animations.
+### 🏆 Leaderboard
 
-🎼 **Song Assembly & Archive**: The game includes functionality to automatically assemble the top-voted lyrics into complete song structures, with an archive system to browse all completed collaborative works.
+* Top contributors ranked by total votes
+* Medal system (gold/silver/bronze)
+* User stats + profile previews
+* Earn recognition across the community
 
-📀 **Dual Interface**: Navigate between the active Studio for current week participation and the Archive to explore the growing collection of community-created songs.
+### 📀 Archive
 
-## How to Play
+* Browse every finished weekly song
+* View full lyrics and their authors
+* Vote counts for each line
+* Contributor lists for each week
 
-### Getting Started
-1. **Launch the App**: Click "Enter Studio" from the cyberpunk-styled splash screen featuring floating logo animations, neon waveforms, and the iconic "THE BAND THAT NEVER WAS" title
-2. **Start the First Week**: If no challenge is active, click "Start Week 1" to initialize the first creative prompt: "Write a verse about the weird clarity that hits you in the middle of the night" with the theme "🌙 3 AM Thoughts"
-3. **Navigate the Interface**: Use the bottom navigation to switch between:
-   - 🎤 **Studio**: Active songwriting workspace for the current week
-   - 📀 **Archive**: Browse completed songs from previous weeks
-4. **Check the Weekly Challenge**: View the current week's creative prompt and theme displayed in the gradient header banner with an info button (ⓘ) for detailed instructions
-5. **Monitor the Countdown**: Each challenge runs for one week - watch the real-time countdown timer showing hours, minutes, and seconds remaining in cyan neon styling
+### 👤 Profile
 
-### Writing and Submitting Lyrics
-1. **Craft Your Lyric**: Type your contribution in the dark-themed text area with neon border effects (must be 10-120 characters)
-2. **Choose Your Song Section**: Select what type of lyric you're contributing using the gradient-styled buttons:
-   - 🎤 **Verse**: Storytelling sections that advance the narrative and set scenes (purple styling)
-   - 🎵 **Chorus**: Catchy, memorable sections that capture the main theme or hook (cyan styling, default selection)
-   - ⭐ **Bridge**: Unique sections that provide contrast, resolution, or a different perspective (orange styling)
-3. **Watch Your Character Count**: The counter shows your progress toward the 120-character limit (displayed as "characters/120")
-4. **Submit Your Creation**: Click the glowing "Submit Your Creation" button to add your lyric to the community pool (button is disabled until you have at least 10 characters)
-5. **One Shot Per Week**: Each user can only submit one lyric per weekly challenge, so make it count! The system prevents multiple submissions per user per prompt.
+* Personal stats: submissions, votes, active weeks
+* Badge collection + unlocks
+* Streak tracking
+* Mini leaderboard card
 
-### Voting and Community Engagement
-1. **View Your Submission**: After submitting, your lyric appears in a special "✨ YOUR SUBMISSION" section with a static vote count display
-2. **Browse Community Submissions**: Scroll through the "🔥 TOP LINES - VOTE & INSPIRE" section with color-coded submission cards
-3. **Vote for Your Favorites**: Click the neon vote badge (↑) next to lyrics that resonate with you - you must be logged in to vote
-4. **Toggle Your Votes**: Click the vote button again to remove your vote - voted submissions show a filled upvote arrow (⬆) with cyan highlighting
-5. **Watch the Rankings**: Submissions automatically sort by vote count, with the most popular rising to the top
-6. **Visual Feedback**: Each lyric type has distinct styling - purple for verses, cyan for choruses, orange for bridges
-7. **Real-Time Updates**: Vote counts and new submissions appear instantly without page refreshes
+### 🏅 Badges
 
-### Song Assembly & Archive System
-The game includes comprehensive functionality for creating and preserving collaborative works:
-- **Automatic Assembly**: Top-voted lyrics are assembled into complete song structures using **Verse-Chorus-Verse-Chorus-Bridge-Chorus** format
-- **Song Titles**: Generated from week themes (e.g., "Week 1: 🌙 3 AM Thoughts")
-- **Credit System**: Shows original authors and vote counts for each section
-- **Archive Navigation**: Browse completed songs in a visual grid layout with album-style artwork placeholders
-- **Song History**: All completed collaborative works are permanently stored and accessible
-- **API Integration**: Backend endpoints handle song assembly and archive retrieval
+* Milestone-based rewards
+* Bronze → Diamond tiers
+* Locked badges show requirements
+* Real-time badge unlock popups
 
-### Weekly Challenge Cycle
-1. **New Prompt Launch**: Fresh creative challenges begin with unique themes and prompts (starting with "🌙 3 AM Thoughts")
-2. **Submission Period**: Community members have one week to contribute their best lyric and vote on others
-3. **Real-Time Updates**: All submissions and votes sync instantly across all users using Reddit's Redis backend
-4. **Community Curation**: The best lyrics rise through democratic voting throughout the week
-5. **Song Assembly**: At week's end, top lyrics are automatically assembled into complete collaborative songs
-6. **Archive Addition**: Completed songs are added to the permanent archive for future browsing
+## 🎮 How to Play
 
-### Content Guidelines
-- **Family-Friendly**: Built-in profanity filtering keeps content appropriate for all ages (filters common profanity including damn, hell, crap, shit, fuck, ass, bitch)
-- **Original Content**: No URLs or external links allowed - keep it focused on original lyrics
-- **Quality Over Quantity**: With one submission per week, focus on crafting your best work
-- **Character Limits**: Lyrics must be between 10-120 characters to ensure quality and readability
-- **Authentication Required**: Must be logged into Reddit to submit lyrics and vote
+1. **Enter the Studio** to see this week’s theme
+2. **Write a line** inspired by the theme
+3. **Vote** on other submissions
+4. **Let the system assemble** the top lines into a song
+5. **Check the Archive** and celebrate the results
 
-## Game Features
+## 🛠️ Tech Stack
 
-### Core Gameplay
-- **Weekly Thematic Prompts**: Each week features a unique creative challenge with specific themes and emotional directions
-- **Three Lyric Types**: Contribute verses (storytelling), choruses (hooks), or bridges (contrast) with distinct visual styling
-- **Democratic Voting System**: Community-driven curation where the best lyrics rise through collective judgment
-- **One Submission Rule**: Each user gets one meaningful contribution per week, encouraging thoughtful creativity
-- **Real-Time Leaderboard**: Submissions automatically sort by vote count with instant updates
-- **Dual Interface Navigation**: Switch between active Studio workspace and Archive browsing with bottom navigation tabs
+* **Platform:** Reddit Devvit
+* **Frontend:** React + TypeScript
+* **Styling:** Custom CSS (Space Grotesk)
+* **Backend:** Express.js + Devvit Server APIs
+* **Database:** Redis (Devvit KVStore)
+* **Deployment:** Devvit CLI
 
-### Technical Features
-- **Instant Synchronization**: All submissions and votes update in real-time across all users
-- **Vote Toggle System**: Users can vote and unvote with visual feedback and persistent state tracking
-- **Content Validation**: Automatic filtering for inappropriate content, URLs, and length requirements
-- **User Session Management**: Tracks submissions and voting history per user per prompt
-- **Mobile-Optimized Interface**: Touch-friendly controls designed for Reddit's mobile-first audience
+## 📁 Project Structure
 
-### Visual Design
-- **Cyberpunk Aesthetic**: Dark theme with neon gradients, glowing effects, and futuristic styling
-- **Animated Splash Screen**: Floating logo with pulsing backgrounds, animated waveforms, and "THE BAND THAT NEVER WAS" title
-- **Color-Coded Sections**: Purple for verses, cyan for choruses, orange for bridges
-- **Live Countdown Timer**: Real-time display of remaining challenge time in neon styling
-- **Success Notifications**: Slide-in toast confirmations for user actions
-- **Archive Interface**: Visual grid layout with album-style artwork placeholders and genre badges
-- **Bottom Navigation**: Fixed navigation bar with Studio and Archive tabs featuring icon and label styling
+```
+crowdband/
+├── src/
+│   ├── client/
+│   │   ├── App.tsx
+│   │   ├── style.css
+│   │   └── main.tsx
+│   └── server/
+│       ├── index.ts
+│       └── core/
+│           ├── db.ts
+│           ├── voting.ts
+│           ├── badges.ts
+│           └── validation.ts
+├── devvit.json
+├── package.json
+└── README.md
+```
 
-## Architecture & Implementation
+## 🚀 Installation & Setup
 
-### Backend Infrastructure
-- **Express.js Server**: RESTful API endpoints handling all game logic and data operations
-- **Redis Database**: Persistent storage for prompts, submissions, votes, and user tracking using Reddit's infrastructure
-- **Devvit Integration**: Seamless Reddit authentication and context management
-- **Content Validation**: Server-side filtering for profanity, URLs, and character limits
-- **Vote Management**: Toggle-based voting system with user state persistence
+### Requirements
 
-### Frontend Technology
-- **React 19**: Modern React with hooks for state management and real-time updates
-- **TypeScript**: Full type safety across client-server communication
-- **Vite Build System**: Fast development and optimized production builds
-- **CSS3 Animations**: Custom keyframe animations for floating elements and transitions
-- **Responsive Design**: Mobile-first approach with touch-optimized controls
+* Node.js 18+
+* Reddit Developer Account
+* Devvit CLI
 
-### API Endpoints
-- `GET /api/prompt`: Retrieve current weekly challenge with theme and countdown
-- `POST /api/submit`: Submit a new lyric with type validation (requires authentication)
-- `GET /api/submissions`: Get all submissions with vote counts and user voting state
-- `POST /api/vote/:submissionId`: Toggle vote on a submission (requires authentication)
-- `POST /api/init-prompt`: Initialize the first week's challenge ("🌙 3 AM Thoughts")
-- `GET /api/assemble-song`: Generate complete song from top-voted lyrics in structured format
-- `GET /api/songs`: Retrieve all completed songs for archive browsing
-- `GET /api/songs/:weekNumber`: Get specific week's assembled song
-- `POST /internal/on-app-install`: Creates initial post when app is installed
-- `POST /internal/menu/post-create`: Creates new game post from Reddit menu
-- `POST /internal/jobs/assemble-weekly-song`: Automated weekly song assembly (scheduled)
-- `POST /internal/jobs/start-next-week`: Automated next week initialization (scheduled)
+### Steps
 
-### Data Models
-- **SongPrompt**: Weekly challenges with themes, prompts, and timing
-- **LyricSubmission**: User contributions with type, text, and metadata
-- **Vote Tracking**: User-submission relationships for toggle functionality
-- **AssembledSong**: Complete song structures with title, theme, prompt, and lyric sections
-- **Song Archive**: Persistent storage of all completed collaborative works with week indexing
+```bash
+git clone https://github.com/yourusername/crowdband.git
+cd crowdband
+npm install
+devvit login
+npm run dev
+```
 
-## Development Setup
+To deploy:
 
-### Prerequisites
-- Node.js 22.2.0 or higher
-- Reddit Developer Account
-- Devvit CLI installed
+```bash
+npm run deploy
+devvit publish
+```
 
-### Commands
-- `npm run dev`: Starts development server with live Reddit integration testing
-- `npm run build`: Builds both client and server projects for production
-- `npm run deploy`: Uploads new version to Reddit's servers
-- `npm run launch`: Publishes app for Reddit review and approval
-- `npm run login`: Authenticates your CLI with Reddit
-- `npm run type-check`: Runs TypeScript compilation checks
+## 🎯 Community Game Mechanics
 
-### Project Structure
-- `src/client/`: React frontend with cyberpunk-styled game interface
-  - `main.tsx`: Entry point with React root mounting and CSS imports
-  - `App.tsx`: Main game component with complete state management, dual-interface navigation (Studio/Archive), and API integration
-  - `style.css`: Complete cyberpunk styling with neon gradients, animations, archive grid layout, and responsive design
-  - `index.html`: HTML template with root container and module script loading
-  - `vite.config.ts`: Vite build configuration for React with output to dist/client
-- `src/server/`: Express backend with Reddit API integration and Redis data storage
-  - `index.ts`: Main server with all API endpoints, middleware, and song assembly logic
-  - `core/db.ts`: Redis database operations for prompts, submissions, votes, and user tracking
-  - `core/validation.ts`: Content validation, profanity filtering, URL blocking, and ID generation
-  - `core/voting.ts`: User voting state management with toggle functionality
-  - `core/post.ts`: Reddit post creation with custom splash screen configuration
-- `src/shared/`: Shared TypeScript types and interfaces for API communication
-  - `types/band.ts`: Core game types (SongPrompt, LyricSubmission, FinalSong, SubmitRequest)
-  - `types/api.ts`: API response types for client-server communication
-- `assets/`: Game logos and visual assets (logo.png, default-splash.png, default-icon.png)
+### Asynchronous Collaboration
 
-### Development Workflow
-1. **Local Development**: Run `npm run dev` to start concurrent client/server builds with live reloading
-2. **Reddit Testing**: Devvit automatically creates test subreddit and provides playtest URL
-3. **Live Integration**: All backend features work through Reddit's infrastructure during development
-4. **Build & Deploy**: Use `npm run build && npm run deploy` to upload to Reddit servers
-5. **Publishing**: Run `npm run launch` to submit for Reddit review and approval
+* Submit and vote anytime during the week
+* Works across time zones
+* Fully asynchronous—no live sessions needed
+
+### Democratic Voting
+
+* Every vote counts
+* Top lines are chosen by the community
+* Transparent and fair ranking
+
+### Collective Creation
+
+* Finished songs belong to everyone
+* Contributors are always credited
+* Creates lasting community artifacts
+
+### Engagement Loops
+
+* Badges reward consistency
+* Leaderboards spark friendly competition
+* New weekly themes keep things fresh
+
+## 🏆 Why It's Perfect for Reddit
+
+1. Built entirely around community input
+2. Encourages creative expression
+3. Easy for anyone to join in
+4. Produces unique, community-owned artifacts
+5. Establishes recurring weekly traditions
+
+## 📊 Database Schema
+
+### Prompt
+
+```ts
+{
+  id: string
+  promptText: string
+  weekNumber: number
+  weekTheme: string
+  status: 'open' | 'closed'
+  endsAt: number
+}
+```
+
+### Submission
+
+```ts
+{
+  id: string
+  userId: string
+  username: string
+  text: string
+  type: 'verse' | 'chorus' | 'bridge'
+  promptId: string
+  votes: number
+  createdAt: number
+}
+```
+
+### Assembled Song
+
+```ts
+{
+  weekNumber: number
+  theme: string
+  genre: string
+  lyrics: {
+    verses: Submission[]
+    choruses: Submission[]
+    bridges: Submission[]
+  }
+  contributors: string[]
+  totalSubmissions: number
+  totalVotes: number
+  completedAt: number
+}
+```
+
+## 🎨 Design Philosophy
+
+* Clean, modern visual style
+* Mobile-first layout with bottom nav
+* Clear visual hierarchy
+* Instant feedback on actions
+* High contrast and readable text
+
+## 🔮 Coming Soon
+
+* [ ] AI-generated music from lyrics (Kiro)
+* [ ] Seasonal challenges and tournaments
+* [ ] Genre voting
+* [ ] Co-writing features
+* [ ] Export songs as images/PDF
+* [ ] Integration with music subreddits
+* [ ] Customizable profiles
+* [ ] Advanced badge tiers
+* [ ] Song remixing
+
+## 📜 License
+
+Licensed under the BSD-3-Clause License — see [LICENSE](LICENSE).
+
+## 🤝 Contributing
+
+This started as a hackathon project, but contributions are welcome. PRs and issues appreciated.
+
+## 👨‍💻 Author
+
+Built for the **Reddit + Kiro Community Games Challenge (Oct 2025)**.
+
+## 🙏 Acknowledgments
+
+* The Reddit Developer Platform team
+* Kiro for AI-powered dev tooling
+* The Reddit communities that inspired this
+* Future CrowdBand contributors and players
+
+---
+
+**Made with ❤️ for Reddit communities**
+*“The best band is the one we build together.”*
+
+---
+
