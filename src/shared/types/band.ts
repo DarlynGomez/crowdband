@@ -2,6 +2,7 @@ export interface SongPrompt {
   id: string;
   promptText: string;
   weekNumber: number;
+  weekTheme?: string;
   createdAt: number;
   endsAt: number;
   status: 'open' | 'closed' | 'assembled';

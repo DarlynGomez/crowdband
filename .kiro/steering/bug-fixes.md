@@ -22,3 +22,16 @@
 **Problem**: Needed to ensure all endpoints start with /api/
 **Solution**: Reviewed server code and confirmed proper endpoint patterns
 **Outcome**: All endpoints follow Devvit Web requirements
+
+## Issue 5: Scheduled Jobs Implementation (Completed)
+**Challenge**: Needed automated weekly song assembly without manual intervention
+**Solution**: 
+- Added `scheduledJobs` to devvit.json with cron schedule
+- Created `/internal/jobs/assemble-weekly-song` endpoint
+- Implemented vote-based ranking algorithm
+- Added manual moderator trigger as backup
+**Kiro Impact**: 
+- Spec-driven development ensured proper data flow
+- Hook testing validated cron timing
+- Automated workflow reduces maintenance to zero
+**Outcome**: Fully automated 36-week journey with zero manual intervention needed

@@ -1,84 +1,105 @@
-import { redis } from '@devvit/web/server';
-import type { SongPrompt, LyricSubmission, FinalSong } from '../../shared/types/band';
+import { redis } from "@devvit/web/server";
 
-const KEYS = {
-  prompt: (id: string) => `prompt:${id}`,
-  currentPrompt: () => `prompt:current`,
-  submission: (id: string) => `submission:${id}`,
-  submissionsByPrompt: (promptId: string) => `submissions:prompt:${promptId}`,
-  votes: (submissionId: string) => `votes:${submissionId}`,
-  userSubmission: (userId: string, promptId: string) => `user:${userId}:prompt:${promptId}`,
-  song: (id: string) => `song:${id}`,
-  songsByWeek: (week: number) => `songs:week:${week}`,
-};
+export async function getCurrentPrompt() {
+  const data = await redis.get("prompt:current");
+  return data ? JSON.parse(data) : null;
+}
 
-export const db = {
-  // Prompt operations
-  async savePrompt(prompt: SongPrompt): Promise<void> {
-    await redis.set(KEYS.prompt(prompt.id), JSON.stringify(prompt));
-    await redis.set(KEYS.currentPrompt(), prompt.id);
-  },
+export async function savePrompt(prompt: any) {
+  await redis.set("prompt:current", JSON.stringify(prompt));
+  await redis.set(`prompt:${prompt.id}`, JSON.stringify(prompt));
+}
 
-  async getCurrentPrompt(): Promise<SongPrompt | null> {
-    const promptId = await redis.get(KEYS.currentPrompt());
-    if (!promptId) return null;
-    const data = await redis.get(KEYS.prompt(promptId));
-    return data ? JSON.parse(data) : null;
-  },
+export async function getSubmissionsByPrompt(promptId: string) {
+  const data = await redis.get(`submissions:${promptId}`);
+  return data ? JSON.parse(data) : [];
+}
 
-  async getPrompt(id: string): Promise<SongPrompt | null> {
-    const data = await redis.get(KEYS.prompt(id));
-    return data ? JSON.parse(data) : null;
-  },
+export async function saveSubmission(submission: any) {
+  const prompt = await getCurrentPrompt();
+  if (!prompt) return;
 
-  // Submission operations
-  async saveSubmission(submission: LyricSubmission): Promise<void> {
-    await redis.set(KEYS.submission(submission.id), JSON.stringify(submission));
-    await redis.sadd(KEYS.submissionsByPrompt(submission.promptId), submission.id);
-    await redis.set(KEYS.userSubmission(submission.userId, submission.promptId), submission.id);
-  },
+  const existing = await getSubmissionsByPrompt(prompt.id);
+  existing.push(submission);
+  await redis.set(`submissions:${prompt.id}`, JSON.stringify(existing));
+}
 
-  async hasUserSubmitted(userId: string, promptId: string): Promise<boolean> {
-    const submissionId = await redis.get(KEYS.userSubmission(userId, promptId));
-    return !!submissionId;
-  },
+export async function getSubmission(submissionId: string) {
+  const prompt = await getCurrentPrompt();
+  if (!prompt) return null;
 
-  async getSubmissionsByPrompt(promptId: string): Promise<LyricSubmission[]> {
-    const submissionIds = await redis.smembers(KEYS.submissionsByPrompt(promptId));
-    const submissions = await Promise.all(
-      submissionIds.map(async (id) => {
-        const data = await redis.get(KEYS.submission(id));
-        return data ? JSON.parse(data) : null;
-      })
-    );
-    return submissions.filter(Boolean);
-  },
+  const submissions = await getSubmissionsByPrompt(prompt.id);
+  return submissions.find((s: any) => s.id === submissionId) || null;
+}
 
-  async getSubmission(id: string): Promise<LyricSubmission | null> {
-    const data = await redis.get(KEYS.submission(id));
-    return data ? JSON.parse(data) : null;
-  },
+export async function hasUserSubmitted(userId: string, promptId: string) {
+  const submissions = await getSubmissionsByPrompt(promptId);
+  return submissions.some((s: any) => s.userId === userId);
+}
 
-  // Vote operations
-  async incrementVote(submissionId: string): Promise<number> {
-    return await redis.incrBy(KEYS.votes(submissionId), 1);
-  },
+export async function getVotes(submissionId: string) {
+  const data = await redis.get(`votes:${submissionId}`);
+  return data ? parseInt(data) : 0;
+}
 
-  async getVotes(submissionId: string): Promise<number> {
-    const votes = await redis.get(KEYS.votes(submissionId));
-    return votes ? parseInt(votes) : 0;
-  },
+export async function setVotes(submissionId: string, votes: number) {
+  await redis.set(`votes:${submissionId}`, votes.toString());
+}
 
-  // Song operations
-  async saveSong(song: FinalSong): Promise<void> {
-    await redis.set(KEYS.song(song.id), JSON.stringify(song));
-    await redis.sadd(KEYS.songsByWeek(song.weekNumber), song.id);
-  },
+export async function incrementVote(submissionId: string) {
+  const current = await getVotes(submissionId);
+  const newCount = current + 1;
+  await setVotes(submissionId, newCount);
+  return newCount;
+}
 
-  async getSong(id: string): Promise<FinalSong | null> {
-    const data = await redis.get(KEYS.song(id));
-    return data ? JSON.parse(data) : null;
-  },
-};
+export async function saveAssembledSong(song: any) {
+  const key = `song:week:${song.weekNumber}`;
+  await redis.set(key, JSON.stringify(song));
+  
+  const allSongsData = await redis.get("songs:all");
+  const allSongs = allSongsData ? JSON.parse(allSongsData) : [];
+  if (!allSongs.includes(song.weekNumber)) {
+    allSongs.push(song.weekNumber);
+    await redis.set("songs:all", JSON.stringify(allSongs));
+  }
+}
 
-export { KEYS };
+export async function getAssembledSong(weekNumber: number) {
+  const key = `song:week:${weekNumber}`;
+  const data = await redis.get(key);
+  return data ? JSON.parse(data) : null;
+}
+
+export async function getAssembledSongs() {
+  const allSongsData = await redis.get("songs:all");
+  const weekNumbers = allSongsData ? JSON.parse(allSongsData) : [];
+  
+  const songs = [];
+  for (const weekNum of weekNumbers) {
+    const song = await getAssembledSong(weekNum);
+    if (song) {
+      songs.push(song);
+    }
+  }
+  return songs;
+}
+
+export async function closePrompt(promptId: string) {
+  const key = `prompt:${promptId}`;
+  const data = await redis.get(key);
+  if (data) {
+    const prompt = JSON.parse(data);
+    prompt.status = "closed";
+    await redis.set(key, JSON.stringify(prompt));
+    
+    const currentData = await redis.get("prompt:current");
+    if (currentData) {
+      const current = JSON.parse(currentData);
+      if (current.id === promptId) {
+        current.status = "closed";
+        await redis.set("prompt:current", JSON.stringify(current));
+      }
+    }
+  }
+}

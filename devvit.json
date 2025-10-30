@@ -24,12 +24,26 @@
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/post-create"
+      },
+      {
+        "label": "Assemble This Week's Song",
+        "description": "Manually trigger song assembly",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/assemble-song"
       }
     ]
   },
   "triggers": {
     "onAppInstall": "/internal/on-app-install"
   },
+  "scheduledJobs": [
+    {
+      "name": "weekly-song-assembly",
+      "cron": "0 23 * * 5",
+      "endpoint": "/internal/jobs/assemble-weekly-song"
+    }
+  ],
   "dev": {
     "subreddit": "crowdband_dev"
   }
